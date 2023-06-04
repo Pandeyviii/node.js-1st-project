@@ -4,31 +4,29 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="./signup.css">
     <title>
         signUp Page
     </title>
 </head>
 <body>
-    <form class="signup" onsubmit="SignUp(event)">
-        <label for="">Expense Amount</label>
-        <input type="text" name="name" required>
-        <label for="">Choose Description</label>
-        <input type="email" name="email" required>
-        <label for="">Choose Category</label>
-        <select name="" id="">
-            <option value="">Gym</option>
-            <option value="">Shopping</option>
-            <option value="">Movie</option>
-            <option value="">Restuarnt</option>
+    <form class="expense" onsubmit="expense(event)">
+        <label for="expense_amount">Expense Amount</label>
+        <input type="number" name="expense_amount" required>
+        <label for="Description">Choose Description</label>
+        <input type="text" name="description" required>
+        <label for="category">Choose Category</label>
+        <select name="category" id="category">
+            <option value="Gym">Gym</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Movie">Movie</option>
+            <option value="Restuarnt">Restuarnt</option>
         </select>
         <!-- <input type="password" name="password" required> -->
-        <button type="submit">SignUp</button>
+        <button type="submit">Add Expense</button>
 
     </form>
-    <a href="../Login/login.html">Existing User -Login</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.2.0/axios.min.js"></script>
-    <script src="./signup.js"></script>
+    <script src="./expense.js"></script>
  
 </body>
 </html>

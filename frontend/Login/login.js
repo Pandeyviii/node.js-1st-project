@@ -13,6 +13,8 @@ async function login(e){
         console.log(response);
         if(response.status===200){
             alert(response.message);
+            window.location.href="../Expense/expense.html"  //change the page on successfull login
+
         }
     }
     catch(err){
