@@ -13,6 +13,8 @@ app.use(bodyparser.json({extended:false}))
 app.use(cors());
 app.use("/user",userRoutes);
 app.use("/expense",expenseRoutes);
+User.hasMany(Expense);
+Expense.belongsTo(User);
   sequelize
   .sync()
   .then(result => {

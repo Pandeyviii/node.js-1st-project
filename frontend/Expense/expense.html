@@ -11,11 +11,11 @@
 <body>
     <form class="expense" onsubmit="expense(event)">
         <label for="expense_amount">Expense Amount</label>
-        <input type="number" name="expense_amount" required>
+        <input type="number" name="expense_amount" id="id1" required>
         <label for="Description">Choose Description</label>
-        <input type="text" name="description" required>
+        <input type="text" name="description" id="id2" required>
         <label for="category">Choose Category</label>
-        <select name="category" id="category">
+        <select name="category" id="category id3">
             <option value="Gym">Gym</option>
             <option value="Shopping">Shopping</option>
             <option value="Movie">Movie</option>
@@ -25,6 +25,7 @@
         <button type="submit">Add Expense</button>
 
     </form>
+    <ul id="listofusers"></ul>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.2.0/axios.min.js"></script>
     <script src="./expense.js"></script>
  

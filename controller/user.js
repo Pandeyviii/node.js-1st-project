@@ -1,7 +1,10 @@
 //const User=require("../models/User");
 const User=require("../models/User");
 const bcrypt=require("bcrypt");
-
+const jwt=require("jsonwebtoken");
+function generateAccessToken(id,name){
+  return jwt.sign({userId:id,name:name},"vishal");
+}
 exports.addUser=async(req,res,next)=>{
     console.log("req-body",req.body);
     try{
@@ -37,7 +40,7 @@ exports.login=async(req,res)=>{
           throw new Error("somethin went error");
         }
         if(result===true){
-          res.status(200).json({status:200 ,success:"true",message:"user login successfully"})
+          res.status(200).json({status:200 ,success:"true",message:"user login successfully",token:generateAccessToken(user[0].id,user[0].name)})
         }
       })
     }
