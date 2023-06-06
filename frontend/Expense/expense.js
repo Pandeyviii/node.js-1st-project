@@ -17,8 +17,27 @@ async function expense(e){
         console.log(err);
     }
 }
+function parseJwt (token) {
+    var base64Url = token.split('.')[1];
+    var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+
+    return JSON.parse(jsonPayload);
+}
+function showPremium(){
+    document.getElementById('rzp-button1').style.visibility="hidden";
+    document.getElementById('message').innerHTML="you are a premium user";
+}
 window.addEventListener("DOMContentLoaded", () => {
-    const token=localStorage.getItem("token");        
+    const token=localStorage.getItem("token");  
+    const decodeToken=parseJwt(token);
+    console.log(decodeToken);
+    const isPremiumUser=decodeToken.isPremiumUser;
+    if(isPremiumUser){
+        showPremium();
+    }      
     axios.get("http://localhost:3000/expense/get-expense",{headers:{"Authorization":token}})
     .then((response) => {
        console.log(response)
@@ -64,4 +83,38 @@ function removeuserfromscreen(userid){
 const parentnode=document.getElementById('listofusers')
 const childnodeisdeleted=document.getElementById(userid)
 parentnode.removeChild(childnodeisdeleted)
+}
+
+document.getElementById("rzp-button1").onclick=async function(e){
+const token=localStorage.getItem("token");
+const response=await axios.get("http://localhost:3000/purchase/premiummembership",{headers:{"Authorization":token}});
+console.log(response);
+var options=
+{
+    "key":response.key_id,
+    "order_id":response.order.id,
+    // handler use for success payment
+    "handler":async function(response){
+       const res= await axios.post('http://localhost:3000/purchase/updatetransactionstatus',{
+            order_id:options.order_id,
+            payment_id:response.razorpay_payment_id,
+        },{headers:{"Authorization":token}})
+        console.log(res)
+
+        alert('You are a premium user Now')
+       
+        document.getElementById('rzp-button1').style.visibility="hidden";
+        document.getElementById('message').innerHTML="you are a premium user";
+
+        localStorage.setItem('token',res.token)
+        // showLeaderboard()
+    }
+}
+const rzp1=new Razorpay(options);
+rzp1.open();
+e.preventDefault();
+rzp1.on('payment failed',function(response){
+    console.log(response)
+    alert('something went wrong')
+})
 }
