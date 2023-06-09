@@ -12,6 +12,9 @@ const Order=require("./models/Orders")
 const userRoutes=require('./routes/user');
 const expenseRoutes=require("./routes/expense");
 const purchaseRoutes=require("./routes/purchase");
+const premiumRoutes=require("./routes/premium");
+const Forgotpassword=require('./models/forgotpassword')
+const ForgotpasswordRoutes=require('./routes/forgotpassword')
 var cors=require('cors')
 const app=express();
 app.use(bodyparser.json({extended:false}))
@@ -19,10 +22,14 @@ app.use(cors());
 app.use("/user",userRoutes);
 app.use("/expense",expenseRoutes);
 app.use("/purchase",purchaseRoutes);
+app.use("/premium",premiumRoutes);
+app.use(ForgotpasswordRoutes);
 User.hasMany(Expense);
 Expense.belongsTo(User);
 User.hasMany(Order);
 Order.belongsTo(User);
+User.hasMany(Forgotpassword);
+Forgotpassword.belongsTo(User);
   sequelize
   .sync()
   .then(result => {

@@ -9,17 +9,13 @@
     </title>
 </head>
 <body>
-    <form onsubmit="login(event)">
-        <label for="">Enter your email</label>
-        <input type="email" name="email" required>
-        <input type="password" name="password" required>
-        <button type="submit">Login</button>
-
+    <form onsubmit="forgotPassword(event)">
+        <input type="email" name="email" placeholder="enter your emailid" required>
+        <button> Send Mail</button>
     </form>
-    <button onclick="forgotPassword()"> Forgot password</button><br><br><br>
     <a href="../signup/signup.html">New User SignUp</a>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.2.0/axios.min.js"></script>
-    <script src="./login.js"></script>
+    <script src="./index.js"></script>
  
 </body>
 </html>

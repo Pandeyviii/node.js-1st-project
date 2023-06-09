@@ -29,6 +29,7 @@ function parseJwt (token) {
 function showPremium(){
     document.getElementById('rzp-button1').style.visibility="hidden";
     document.getElementById('message').innerHTML="you are a premium user";
+    // showLeaderBoard();
 }
 window.addEventListener("DOMContentLoaded", () => {
     const token=localStorage.getItem("token");  
@@ -37,6 +38,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const isPremiumUser=decodeToken.isPremiumUser;
     if(isPremiumUser){
         showPremium();
+        showLeaderBoard();
     }      
     axios.get("http://localhost:3000/expense/get-expense",{headers:{"Authorization":token}})
     .then((response) => {
@@ -50,6 +52,27 @@ window.addEventListener("DOMContentLoaded", () => {
     })
  
 })
+function showLeaderBoard(){
+    // const premium=document.getElementById("leader");
+    const inputElement=document.createElement("input")
+    inputElement.type="button"
+    inputElement.value="Show Leaderboard"
+    // premium.appendChild(inputElement);
+    inputElement.onclick=async()=>{
+        const token=localStorage.getItem('token')
+        //const page =1;
+        const userLeaderBoardArray=await axios.get(`http://localhost:3000/premium/showLeaderBoard`,{headers:{"Authorization":token}})
+        console.log("abCDDD",userLeaderBoardArray);
+        const LeaderBoard=document.getElementById("leader");
+        LeaderBoard.innerHTML+="<h1>LeaderBoard</h1>"
+        userLeaderBoardArray.forEach((user)=>{
+        LeaderBoard.innerHTML+=
+        `<li>name:-${user.name},total Amount:-${user.Amount}</li>`
+        })
+
+}
+document.getElementById("message").appendChild(inputElement);
+}
 
 function shownewuseronscreen(user){
 console.log(user)
@@ -107,9 +130,11 @@ var options=
         document.getElementById('message').innerHTML="you are a premium user";
 
         localStorage.setItem('token',res.token)
-        // showLeaderboard()
+         showLeaderBoard()
     }
 }
+
+
 const rzp1=new Razorpay(options);
 rzp1.open();
 e.preventDefault();
@@ -117,4 +142,26 @@ rzp1.on('payment failed',function(response){
     console.log(response)
     alert('something went wrong')
 })
+}
+
+function download(){
+    const token=localStorage.getItem('token');
+    axios.get('http://localhost:3000/user/download', { headers: {"Authorization" : token} })
+    .then((response) => {
+        console.log(response)
+    //     if(response.status === 200){
+    //         var a = document.createElement("a");
+    //         a.href = response.data.fileURl;
+    //         a.download = 'myexpense.csv';
+    //         a.click();
+    //         showFileURl(response.data.fileURl)
+    //     } else {
+    //         throw new Error(response.data.message)
+               
+    //     }
+
+    // })
+    // .catch((err) => {
+    //     document.body.innerHTML+=`<div style="color:red;">${err}</div>`
+    });
 }

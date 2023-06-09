@@ -22,3 +22,6 @@ async function login(e){
         console.log(err);
     }
 }
+function forgotPassword(){
+    window.location.href="../forget_password/index.html"
+}
