@@ -15,6 +15,7 @@ const purchaseRoutes=require("./routes/purchase");
 const premiumRoutes=require("./routes/premium");
 const Forgotpassword=require('./models/forgotpassword')
 const ForgotpasswordRoutes=require('./routes/forgotpassword')
+const Filelink=require('./models/filelink');
 var cors=require('cors')
 const app=express();
 app.use(bodyparser.json({extended:false}))
@@ -29,6 +30,8 @@ Expense.belongsTo(User);
 User.hasMany(Order);
 Order.belongsTo(User);
 User.hasMany(Forgotpassword);
+User.hasMany(Filelink);
+Filelink.belongsTo(User)
 Forgotpassword.belongsTo(User);
   sequelize
   .sync()

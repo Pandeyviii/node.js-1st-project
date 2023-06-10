@@ -7,6 +7,6 @@ const auth=require("../middleware/auth");
 router.post("/add-expense",auth,expenseController.add_expense);
 router.get("/get-expense",auth,expenseController.get_expense);
 
-router.delete('/delete-expense/:id',expenseController.delete_expense);
+router.delete('/delete-expense/:id',auth,expenseController.delete_expense);
 
 module.exports=router;

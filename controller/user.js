@@ -1,7 +1,10 @@
 //const User=require("../models/User");
 const User=require("../models/User");
+const AWS=require('aws-sdk')
 const bcrypt=require("bcrypt");
 const jwt=require("jsonwebtoken");
+const Filelink=require('../models/filelink');
+const Expense=require("../models/Expense");
 function generateAccessToken(id,name,isPremiumUser){
   return jwt.sign({userId:id,name:name,isPremiumUser:isPremiumUser},"vishal");
 }
@@ -12,6 +15,41 @@ function isstringinvalid(string){
       return false
   }
 }
+function uploadToS3(data,filename){
+    const BUCKET_NAME=process.env.BUCKET_NAME;
+    const IAM_USER_KEY=process.env.IAM_USER_KEY;
+    const IAM_USER_SECRET=process.env.IAM_USER_SECRET;
+
+    let s3bucket=new AWS.S3({
+      // aws_access_key_id:IAM_USER_KEY,
+      // aws_secret_access_key:IAM_USER_SECRET,
+        // Bucket:BUCKET_NAME
+        credentials: {
+          accessKeyId: IAM_USER_KEY,
+          secretAccessKey: IAM_USER_SECRET
+        }
+    })
+    console.log("s3 bucket",s3bucket);
+    var params={
+        Bucket:BUCKET_NAME,
+        Key:filename,
+        Body:data,
+        ACL:'public-read'
+    }
+    return new Promise((resolve,reject)=>{
+        s3bucket.upload(params,(err,s3response)=>{
+            if(err){
+                console.log('something went wrong',err)
+                reject(err)
+
+            }
+            else{
+                 console.log('success',s3response)
+                resolve(s3response.Location);
+            }
+    })
+    })
+  }
 exports.addUser=async(req,res,next)=>{
     console.log("req-body",req.body);
     try{
@@ -58,3 +96,28 @@ exports.login=async(req,res)=>{
       })
     }
   }
+  exports.getDownload=async(req,res,next)=>{
+    console.log("hello world");
+    if(!req.user.isPremiumUser){
+        return res.status(400).json({message:'only for premium user'})
+    }
+    try{
+
+    const expenses=await req.user.getExpenses()
+    console.log(expenses)
+    const stringifiedExpenses=JSON.stringify(expenses)
+    // depend on the users
+    const userId=req.user.id;
+    console.log("this is useri d",userId)
+    const filename=`Expense${userId}/${new Date()}.txt`;
+    const fileURl=await uploadToS3(stringifiedExpenses,filename)
+    console.log(fileURl)
+    await req.user.createFilelink({fileURl:fileURl})
+   
+    res.status(200).json({fileURl,success:true,status:200})
+    }
+    catch(err){
+        res.status(500).json({fileURl:'',success:false,err:err})
+    }
+
+}

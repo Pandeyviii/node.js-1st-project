@@ -1,3 +1,4 @@
+const pagination=document.getElementById("pagination");
 async function expense(e){
     e.preventDefault();
     try{
@@ -32,6 +33,7 @@ function showPremium(){
     // showLeaderBoard();
 }
 window.addEventListener("DOMContentLoaded", () => {
+    let page=1;
     const token=localStorage.getItem("token");  
     const decodeToken=parseJwt(token);
     console.log(decodeToken);
@@ -40,18 +42,60 @@ window.addEventListener("DOMContentLoaded", () => {
         showPremium();
         showLeaderBoard();
     }      
-    axios.get("http://localhost:3000/expense/get-expense",{headers:{"Authorization":token}})
+    axios.get(`http://localhost:3000/expense/get-expense?page=${page}`,{headers:{"Authorization":token}})
     .then((response) => {
        console.log(response)
-       for(var i=0;i<response.length;i++){
-           shownewuseronscreen(response[i])
-       }
+    //    for(var i=0;i<response.length;i++){
+    //        shownewuseronscreen(response[i])
+    //    }
+    response.expenses.forEach((expense)=>{
+        addNewExpensetoUI(expense);
+    })
+       showPagination(response.pagination);
     })
     .catch((error) => {
        console.log(error)
     })
  
 })
+function getExpenses(page){
+    const token=localStorage.getItem('token')
+    axios.get(`http://localhost:3000/expense/get-expense?page=${page}`,{headers:{"Authorization":token}})
+    .then(response=>{
+        response.expenses.forEach((expense)=>{
+            addNewExpensetoUI(expense);
+        })
+        showPagination(response.pagination)
+
+        
+    })
+}
+function showPagination({
+    currentPage,
+    hasNextPage,
+    hasPreviousPage,
+    nextPage,
+    previousPage,
+    lastpage
+}){
+    pagination.innerHTML="";
+    if(hasPreviousPage){
+        const btn2=document.createElement('button')
+        btn2.innerHTML=previousPage
+        btn2.addEventListener('click',()=>getExpenses(previousPage))
+        pagination.appendChild(btn2)
+    }
+    const btn1=document.createElement('button')
+    btn1.innerHTML=`<h3>${currentPage}</h3>`
+    btn1.addEventListener('click',()=>getExpenses(currentPage))
+    pagination.appendChild(btn1)
+    if(hasNextPage){
+        const btn3=document.createElement('button')
+        btn3.innerHTML=nextPage
+        btn3.addEventListener('click',()=>getExpenses(nextPage))
+        pagination.appendChild(btn3)
+    }
+}
 function showLeaderBoard(){
     // const premium=document.getElementById("leader");
     const inputElement=document.createElement("input")
@@ -74,33 +118,57 @@ function showLeaderBoard(){
 document.getElementById("message").appendChild(inputElement);
 }
 
-function shownewuseronscreen(user){
-console.log(user)
+// function shownewuseronscreen(user){
+// console.log(user)
 
-const parentnode=document.getElementById('listofusers')
-const childnode=   `<li id=${user.id}> ${user.Amount}, ${user.Category}, ${user.Description}
-                   <button onclick=deleteExpense('${user.id}')> Delete expense </button>
-                   <button onclick=editExpense('${user.Description}','${user.Amount}','${user.id}')> Edit expense </button></li>`
-parentnode.innerHTML= parentnode.innerHTML + childnode
+// const parentnode=document.getElementById('listofusers')
+// const childnode=   `<li id=${user.id}> ${user.Amount}, ${user.Category}, ${user.Description}
+//                    <button onclick=deleteExpense('${user.id}')> Delete expense </button>
+//                    <button onclick=editExpense('${user.Description}','${user.Amount}','${user.id}')> Edit expense </button></li>`
+// parentnode.innerHTML= parentnode.innerHTML + childnode
+// }
+// function editExpense(description,expense_Amount,userid){
+// document.getElementById('id2').value=description;
+// document.getElementById('id1').value=expense_Amount;
+// // document.getElementById('id3').value=category
+// deleteExpense(userid);
+
+// }
+// function deleteExpense(userid){
+//     const token=localStorage.getItem("token");   
+// axios.delete(`http://localhost:3000/expense/delete-expense/${userid}`,{headers:{"Authorization":token}})
+// .then((response) => {
+//    removeuserfromscreen(userid)
+
+// })
+// .catch((err) =>{
+//    console.log(err)
+// })
+
+// }
+function addNewExpensetoUI(expense){
+    const parentElement=document.getElementById('listofusers')
+    const expenseElemId=`expense-${expense.id}`;
+    parentElement.innerHTML +=`<li id=${expenseElemId}>
+    ${expense.Amount} - ${expense.Category} - ${expense.Description}
+    <button onClick='deleteExpense(event,${expense.id})'>Delete Expense</button>
+    </li>`
 }
-function editExpense(description,expense_Amount,userid){
-document.getElementById('id2').value=description;
-document.getElementById('id1').value=expense_Amount;
-// document.getElementById('id3').value=category
-deleteExpense(userid);
+function deleteExpense(e,expenseid){
+    const token=localStorage.getItem('token')
+    axios.delete(`http://localhost:3000/expense/delete-expense/${expenseid}`,{headers:{"Authorization":token}}).then(()=>{
+        console.log("hellooo ")
+        console.log(expenseid)
+        removeExpensefromUI(expenseid)
 
+    })
+    .catch((err=>{
+        showError(err)
+    }))
 }
-function deleteExpense(userid){
-    const token=localStorage.getItem("token");   
-axios.delete(`http://localhost:3000/expense/delete-expense/${userid}`,{headers:{"Authorization":token}})
-.then((response) => {
-   removeuserfromscreen(userid)
-
-})
-.catch((err) =>{
-   console.log(err)
-})
-
+function removeExpensefromUI(expenseid){
+    const expenseElemId=`expense-${expenseid}`
+    document.getElementById(expenseElemId).remove()
 }
 function removeuserfromscreen(userid){
 const parentnode=document.getElementById('listofusers')
@@ -149,19 +217,18 @@ function download(){
     axios.get('http://localhost:3000/user/download', { headers: {"Authorization" : token} })
     .then((response) => {
         console.log(response)
-    //     if(response.status === 200){
-    //         var a = document.createElement("a");
-    //         a.href = response.data.fileURl;
-    //         a.download = 'myexpense.csv';
-    //         a.click();
-    //         showFileURl(response.data.fileURl)
-    //     } else {
-    //         throw new Error(response.data.message)
+        if(response.status === 200){
+            var a = document.createElement("a");
+            a.href = response.fileURl;
+            a.download = 'myexpense.csv';
+            a.click();
+        } else {
+            throw new Error(response.data.message)
                
-    //     }
+        }
 
-    // })
-    // .catch((err) => {
-    //     document.body.innerHTML+=`<div style="color:red;">${err}</div>`
+    })
+    .catch((err) => {
+        document.body.innerHTML+=`<div style="color:red;">${err}</div>`
     });
 }
