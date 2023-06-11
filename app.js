@@ -18,7 +18,7 @@ const ForgotpasswordRoutes=require('./routes/forgotpassword')
 const Filelink=require('./models/filelink');
 var cors=require('cors')
 const app=express();
-app.use(bodyparser.json({extended:false}))
+app.use(bodyparser.json())
 app.use(cors());
 app.use("/user",userRoutes);
 app.use("/expense",expenseRoutes);
@@ -33,6 +33,11 @@ User.hasMany(Forgotpassword);
 User.hasMany(Filelink);
 Filelink.belongsTo(User)
 Forgotpassword.belongsTo(User);
+app.use((req,res)=>{
+  console.log('urlll',req.url)
+  res.sendFile(path.join(__dirname,`frontend/${req.url}`));
+  
+})
   sequelize
   .sync()
   .then(result => {
